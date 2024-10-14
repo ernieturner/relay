@@ -25,7 +25,7 @@ const NewsfeedQuery = graphql`
           url
         }
       }
-      image {
+      thumbnail {
         url
       }
     }
@@ -33,7 +33,9 @@ const NewsfeedQuery = graphql`
 `;
 ```
 
-Now go to `Story.tsx` and modify it to display the date:
+Now we've updated the query, we need to run the Relay compiler so that it knows about the updated Graphql query by running `npm run relay`.
+
+Next, go to `Story.tsx` and modify it to display the date:
 
 ```
 // change-line
@@ -50,11 +52,11 @@ type Props = {
 export default function Story({story}: Props) {
   return (
     <Card>
-      <PosterByline person={story.poster} />
+      <PosterByline poster={story.poster} />
       <Heading>{story.title}</Heading>
       // change-line
       <Timestamp time={story.createdAt} /> // Add this line
-      <Image image={story.image} />
+      <Image image={story.thumbnail} />
       <StorySummary summary={story.summary} />
     </Card>
   );
@@ -142,9 +144,9 @@ export default function Story({story}: Props) {
   return (
     <Card>
       <Heading>{data.title}</Heading>
-      <PosterByline person={data.poster} />
+      <PosterByline poster={data.poster} />
       <Timestamp time={data.createdAt} />
-      <Image image={data.image} />
+      <Image image={data.thumbnail} />
       <StorySummary summary={data.summary} />
     </Card>
   );
@@ -210,7 +212,7 @@ The `PosterByline` component used by `Story` renders the poster’s name and pro
 * Declare a `PosterBylineFragment` on `Actor` and specify the fields it needs (`name`, `profilePicture`). The `Actor` type represents a person or organization that can post a story.
 * Spread that fragment within `poster` in `StoryFragment`.
 * Call `useFragment` to retrieve the data.
-* Update the Props to accept a `PosterBylineFragment$key` as the `person` prop.
+* Update the Props to accept a `PosterBylineFragment$key` as the `poster` prop.
 
 It’s worth going through these steps a second time, to get the mechanics of using fragments under your fingers. There are a lot of parts here that need to slot together in the right way.
 
@@ -440,7 +442,7 @@ const StoryFragment = graphql`
     poster {
       ...PosterBylineFragment
     }
-    image {
+    thumbnail {
       // change-line
       ...ImageFragment @arguments(width: 400)
     }
@@ -474,7 +476,7 @@ Field arguments (e.g. `url(height: 100)`) are a feature of GraphQL itself, while
 
 ## Summary
 
-Fragments are the most distinctive aspect of how Relay uses GraphQL. We recommend that every component that displays data and cares about the semantics of that data (so not just a typographic or formatting component) use a GraphQL fragment to declare its data dependences.
+Fragments are the most distinctive aspect of how Relay uses GraphQL. We recommend that every component that displays data and cares about the semantics of that data (so not just a typographic or formatting component) use a GraphQL fragment to declare its data dependencies.
 
 * Fragments help you scale: No matter how many places a component is used, you can update its data dependencies in a single place.
 * Fragment data needs to be read out with `useFragment`.
